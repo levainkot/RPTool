@@ -1,0 +1,58 @@
+name: RPTool
+version: '${project.version}'
+author: chelop
+main: me.chelop.rptool.RPTool
+api-version: '1.16'
+
+commands:
+  do:
+    usage: /do <action>
+    permission: rt.do
+
+  gdo:
+    usage: /gdo <action>
+    permission: rt.gdo
+
+  me:
+    usage: /me <action>
+    permission: rt.me
+
+  gme:
+    usage: /gme <action>
+    permission: rt.gme
+
+  todo:
+    usage: /todo <message*action>
+    permission: rt.todo
+
+  gtodo:
+    usage: /gtodo <message*action>
+    permission: rt.gtodo
+
+  try:
+    usage: /try <action>
+    permission: rt.try
+
+  gtry:
+    usage: /gtry <action>
+    permission: rt.gtry
+
+  rt:
+    permission: rt.reload
+
+  n:
+    usage: /n <message>
+    permission: rt.n
+    aliases:
+      - b
+  gn:
+    usage: /gn <message>
+    permission: rt.gn
+    aliases:
+      - gb
+
+  w:
+    usage: /w <player> <message>
+    permission: rt.w
+    aliases:
+      - whisper

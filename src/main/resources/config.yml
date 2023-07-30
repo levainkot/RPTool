@@ -1,0 +1,76 @@
+# RPTool, 2023, by chelop
+# License: Apache 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
+
+# Ошибки
+player-only: "&cОшибка: Можно использовать только игроку."
+not-enough-arguments: "&cОшибка: Недостаточно аргументов."
+not-heard: "&eНикто не услышал тебя."
+
+# Перезагрузка конфига
+config-reload: "&aКонфигурация успешно перезагружена."
+
+# Команды
+commands:
+  do:
+    enable: true
+    message: "&d%action% %player%"
+    range:
+      enable: true
+      range: 25
+  me:
+    enable: true
+    message: "&d%player% %action%"
+    range:
+      enable: true
+      range: 25
+  nrp:
+    enable: true
+    message: "&6(( %player%: %message% ))"
+    range:
+      enable: true
+      range: 25
+  todo:
+    enable: true
+    message: "&d%action%, %player% сказал(а): &3%message%"
+    range:
+      enable: true
+      range: 25
+  try:
+    enable: true
+    message: "&d%player% %action% &7| %result%"
+    range:
+      enable: true
+      range: 25
+  whisper:
+    enable: true
+    # Ошибки команды
+    whisper-yourself: "&cОшибка: Нельзя шептать самому себе."
+    player-not-found: "&cОшибка: Игрок не найден."
+    distance-exceeded: "&cСлишком большое расстояние между вами и получателем."
+
+    # Сообщения команды
+    you-whispered: "&7Ты прошептал %player%: %message%"
+    whispered-you: "&7%player% прошептал тебе: %message%"
+
+    # Максимально допустимое расстояние между игроками
+    distance-between-players:
+      enable: true
+      distance: 5
+
+global-commands:
+  do:
+    enable: true
+    message: "&7[&eG&7] &d%action% %player%"
+  me:
+    enable: true
+    message: "&7[&eG&7] &d%player% %action%"
+  nrp:
+    enable: true
+    message: "&7[&eG&7] &6(( %player%: %message% ))"
+  todo:
+    enable: true
+    message: "&7[&eG&7] &d%action%, %player% сказал(а): &3%message%"
+  try:
+    enable: true
+    message: "&7[&eG&7] &d%player% %action% &7| %result%"
