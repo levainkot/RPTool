@@ -10,8 +10,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.io.File;
 import java.io.IOException;
 
-import static me.chelop.rptool.utils.ErrorUtils.nullError;
-
 public class ReloadCmd implements CommandExecutor {
 
     private final FileConfiguration config;
@@ -30,11 +28,7 @@ public class ReloadCmd implements CommandExecutor {
 
         try {
             config.load(configFile); // Reloading the configuration
-            String msg = config.getString("config-reload");
-            if (msg == null) {
-                return nullError(sender, "config-reload");
-            }
-
+            String msg = config.getString("config-reload", "&aКонфигурация успешно перезагружена.");
             msg = ChatColor.translateAlternateColorCodes('&', msg);
             sender.sendMessage(msg);
 

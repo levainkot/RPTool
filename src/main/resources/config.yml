@@ -3,7 +3,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 
 # Ошибки
-player-only: "&cОшибка: Можно использовать только игроку."
+player-only: "&cОшибка: Команда доступна только игроку."
 not-enough-arguments: "&cОшибка: Недостаточно аргументов."
 not-heard: "&eНикто не услышал тебя."
 
@@ -17,31 +17,37 @@ commands:
     message: "&d%action% %player%"
     range:
       enable: true
-      range: 25
+      range: 15
   me:
     enable: true
     message: "&d%player% %action%"
     range:
       enable: true
-      range: 25
+      range: 15
+  scream:
+    enable: true
+    message: "%player% крикнул: %message%"
+    range:
+      enable: true
+      range: 30
   nrp:
     enable: true
     message: "&6(( %player%: %message% ))"
     range:
       enable: true
-      range: 25
+      range: 15
   todo:
     enable: true
     message: "&d%action%, %player% сказал(а): &3%message%"
     range:
       enable: true
-      range: 25
+      range: 15
   try:
     enable: true
     message: "&d%player% %action% &7| %result%"
     range:
       enable: true
-      range: 25
+      range: 15
   whisper:
     enable: true
     # Ошибки команды

@@ -1,6 +1,5 @@
 package me.chelop.rptool.cmds;
 
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,7 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import me.chelop.rptool.utils.*;
 
-import static me.chelop.rptool.utils.ErrorUtils.nullError;
+import static me.chelop.rptool.utils.ReplaceUtils.replace;
 
 public class NonRPCmd implements CommandExecutor {
 
@@ -21,83 +20,50 @@ public class NonRPCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        EnableUtils enable = new EnableUtils(config);
-        boolean result = enable.check("commands.nrp.enable");
-
-        if (!result) {
-            return true;
-        }
-
         ErrorUtils errorUtils = new ErrorUtils(config);
 
-        if (!(sender instanceof Player)) {
-            return errorUtils.showError(sender, "player-only");
-        }
+        if (!config.getBoolean("commands.nrp.enable", true))
+            return true;
 
-        if (args.length >= 1) {
-            String message = String.join(" ", args);
+        if (!(sender instanceof Player))
+            return errorUtils.showError(sender, "player-only", "&cОшибка: Можно использовать только игроку.");
 
-            boolean resultRange = enable.check("commands.nrp.range.enable");
-            boolean foundTarget = false;
+        if (args.length < 1)
+            return errorUtils.showError(sender, "not-enough-arguments", "&cОшибка: Недостаточно аргументов.");
 
-            Player player = (Player) sender;
-            World world = player.getWorld();
+        Player player = (Player) sender;
+        World world = player.getWorld();
+        String messageNrp = config.getString("commands.nrp.message", "%player% %message%");
+        String message = String.join(" ", args);
 
-            String messageNrp = config.getString("commands.nrp.message");
+        messageNrp = replace(messageNrp, "%player%", player.getName(), "%message%", message);
 
-            if (messageNrp == null) {
-                return nullError(sender, "commands.nrp.message");
-            }
-
-            messageNrp = ReplaceUtils.replace(messageNrp, "%player%", player.getName(), "%message%", message);
-            messageNrp = ChatColor.translateAlternateColorCodes('&', messageNrp);
-
+        for (Player players : world.getPlayers()) {
             String commandName = command.getName();
-            boolean n = commandName.equalsIgnoreCase("n");
-            boolean b = commandName.equalsIgnoreCase("b");
 
-            for (Player players : world.getPlayers()) {
-                if (n || b) {
-                    if (resultRange) {
-                        String value = config.getString("commands.nrp.range.range");
+            if (commandName.equalsIgnoreCase("n")) {
+                if (config.getBoolean("commands.nrp.range.enable", true)) {
+                    int range = config.getInt("commands.nrp.range.range", 15);
 
-                        if (value == null) {
-                            return nullError(sender, "commands.nrp.range.range");
-                        }
-
-                        int range = Integer.parseInt(value);
-
-                        if (!player.equals(players) && player.getLocation().distance(players.getLocation()) < range) {
-                            foundTarget = true;
-                            players.sendMessage(messageNrp);
-                        }
-                    } else {
-                        players.sendMessage(messageNrp);
-                        foundTarget = true;
-                    }
-                } else if (commandName.equalsIgnoreCase("gn")) {
-                    boolean globalEnabled = enable.check("global-commands.nrp.enable");
-
-                    if (globalEnabled) {
-                        String globalCmd = config.getString("global-commands.nrp.message");
-                        globalCmd = ReplaceUtils.replace(globalCmd, "%player%", player.getName(), "%message%", message);
-                        globalCmd = ChatColor.translateAlternateColorCodes('&', globalCmd);
-
-                        players.sendMessage(globalCmd);
-                        foundTarget = true;
-                    }
-                    else {
+                    if (!player.equals(players) && player.getLocation().distance(players.getLocation()) < range) {
+                        players.sendMessage(messageNrp); player.sendMessage(messageNrp);
                         return true;
                     }
+                } else {
+                    players.sendMessage(messageNrp); player.sendMessage(messageNrp);
+                    return true;
                 }
-            }
+            } else if (commandName.equalsIgnoreCase("gn")) {
+                if (config.getBoolean("global-commands.nrp.enable", true)) {
+                    String globalCmd = config.getString("global-commands.nrp.message", "&d%player% %message%");
+                    globalCmd = replace(globalCmd, "%player%", player.getName(), "%message%", message);
 
-            if (!foundTarget) {
-                return errorUtils.showError(sender, "not-heard");
+                    players.sendMessage(globalCmd); player.sendMessage(globalCmd);
+                }
+                return true;
             }
-        } else {
-            return errorUtils.showError(sender, "not-enough-arguments");
         }
-        return true;
+        player.sendMessage(messageNrp);
+        return errorUtils.showError(sender, "not-heard", "&eНикто не услышал тебя.");
     }
 }

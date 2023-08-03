@@ -1,6 +1,5 @@
 package me.chelop.rptool.cmds;
 
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,7 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import me.chelop.rptool.utils.*;
 
-import static me.chelop.rptool.utils.ErrorUtils.nullError;
+import static me.chelop.rptool.utils.ReplaceUtils.replace;
 
 public class MeCmd implements CommandExecutor {
 
@@ -21,83 +20,50 @@ public class MeCmd implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        EnableUtils enable = new EnableUtils(config);
-        boolean result = enable.check("commands.me.enable");
-
-        if (!result) {
-            return true;
-        }
-
         ErrorUtils errorUtils = new ErrorUtils(config);
 
-        if (!(sender instanceof Player)) {
-            return errorUtils.showError(sender, "player-only");
-        }
+        if (!config.getBoolean("commands.me.enable", true))
+            return true;
 
-        if (args.length >= 1) {
-            String action = String.join(" ", args);
-            boolean resultRange = enable.check("commands.me.enable");
+        if (!(sender instanceof Player))
+            return errorUtils.showError(sender, "player-only", "&cОшибка: Можно использовать только игроку.");
 
-            boolean foundTarget = false;
+        if (args.length < 1)
+            return errorUtils.showError(sender, "not-enough-arguments", "&cОшибка: Недостаточно аргументов.");
 
-            Player player = (Player) sender;
-            World world = player.getWorld();
+        Player player = (Player) sender;
+        World world = player.getWorld();
+        String messageMe = config.getString("commands.me.message", "&d%player% %action%");
+        String action = String.join(" ", args);
 
-            String messageMe = config.getString("commands.me.message");
+        messageMe = replace(messageMe, "%player%", player.getName(), "%action%", action);
 
-            if (messageMe == null) {
-                return nullError(sender, "commands.me.message");
-            }
-
-            messageMe = ReplaceUtils.replace(messageMe, "%player%", player.getName(), "%action%", action);
-            messageMe = ChatColor.translateAlternateColorCodes('&', messageMe);
-
+        for (Player players : world.getPlayers()) {
             String commandName = command.getName();
 
-            for (Player players : world.getPlayers()) {
-                if (commandName.equalsIgnoreCase("me")) {
-                    if (resultRange) {
-                        String value = config.getString("commands.me.range.range");
+            if (commandName.equalsIgnoreCase("me")) {
+                if (config.getBoolean("commands.me.range.enable", true)) {
+                    int range = config.getInt("commands.me.range.range", 15);
 
-                        if (value == null) {
-                            return nullError(sender, "commands.me.range.range");
-                        }
-
-                        int range = Integer.parseInt(value);
-
-                        if (!player.equals(players) && player.getLocation().distance(players.getLocation()) < range) {
-                            foundTarget = true;
-                            players.sendMessage(messageMe);
-                            player.sendMessage(messageMe);
-                        }
-                    } else {
-                        players.sendMessage(messageMe);
-                        foundTarget = true;
-                    }
-                }
-                else if (commandName.equalsIgnoreCase("gme")) {
-                    boolean globalEnabled = enable.check("global-commands.me.enable");
-
-                    if (globalEnabled) {
-                        String globalCmd = config.getString("global-commands.me.message");
-                        globalCmd = ReplaceUtils.replace(globalCmd, "%player%", player.getName(), "%action%", action);
-                        globalCmd = ChatColor.translateAlternateColorCodes('&', globalCmd);
-
-                        players.sendMessage(globalCmd);
-                        foundTarget = true;
-                    }
-                    else {
+                    if (!player.equals(players) && player.getLocation().distance(players.getLocation()) < range) {
+                        players.sendMessage(messageMe); player.sendMessage(messageMe);
                         return true;
                     }
+                } else {
+                    players.sendMessage(messageMe); player.sendMessage(messageMe);
+                    return true;
                 }
-            }
+            } else if (commandName.equalsIgnoreCase("gme")) {
+                if (config.getBoolean("global-commands.me.enable", true)) {
+                    String globalCmd = config.getString("global-commands.me.message", "&d%player% %action%");
+                    globalCmd = replace(globalCmd, "%player%", player.getName(), "%action%", action);
 
-            if (!foundTarget) {
-                return errorUtils.showError(sender, "not-heard");
+                    players.sendMessage(globalCmd); player.sendMessage(globalCmd);
+                }
+                return true;
             }
-        } else {
-            return errorUtils.showError(sender, "not-enough-arguments");
         }
-        return true;
+        player.sendMessage(messageMe);
+        return errorUtils.showError(sender, "not-heard", "&eНикто не услышал тебя.");
     }
 }

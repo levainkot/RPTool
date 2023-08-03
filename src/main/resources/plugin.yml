@@ -39,6 +39,14 @@ commands:
 
   rt:
     permission: rt.reload
+    aliases:
+      - rptool
+
+  s:
+    usage: /s <сообщение>
+    permissions: rt.s
+    aliases:
+      - scream
 
   n:
     usage: /n <message>
