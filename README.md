@@ -1,5 +1,5 @@
 # RPTool
-A simple RP plugin for the commands /me /do /try /todo /w /n
+A simple RP plugin for the commands /me /do /try /todo /w /n /s
 # Downloads
 [spigotmc.ru](https://spigotmc.ru/resources/rptool-me-do-try-dlja-vashix-rp-serverov.1572/)
 
