@@ -1,6 +1,5 @@
 package me.chelop.rptool.cmds;
 
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,6 +12,7 @@ import java.util.Random;
 import static me.chelop.rptool.utils.ReplaceUtils.replace;
 
 public class TryCmd implements CommandExecutor {
+
     private final FileConfiguration config;
 
     public TryCmd(FileConfiguration config) {
@@ -20,64 +20,25 @@ public class TryCmd implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        ErrorUtils errorUtils = new ErrorUtils(config);
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        SendUtils sendUtils = new SendUtils(config);
 
-        if (!config.getBoolean("commands.try.enable", true))
-            return true;
-
-        if (!(sender instanceof Player))
-            return errorUtils.showError(sender, "player-only", "&cОшибка: Эта команда доступна только игроку");
-
-        if (args.length < 1)
-            return errorUtils.showError(sender, "not-enough-arguments", "&cОшибка: Недостаточно аргументов");
-
+        Player player = (Player) sender;
+        String messageTry = config.getString("commands.try.message", "&d%player% %action% &7| %result%");
+        String globalMessage = config.getString("global-commands.try.message", "&7[&eG&7]&d%player% %action% &7| %result%");
         String action = String.join(" ", args);
         Random random = new Random();
-        Player player = (Player) sender;
-        World world = player.getWorld();
 
-        String messageTry = config.getString("commands.try.message", "&d%player% %action% &7| %result%");
+        messageTry = replace(messageTry, "%player%", player.getName(), "%action%", action);
+        globalMessage = replace(globalMessage, "%player%", player.getName(), "%action%", action);
 
-        for (Player players : world.getPlayers()) {
-            int randomValue = random.nextInt(101);
+        int randomValue = random.nextInt(101);
+        String result = randomValue < 50 ? "&aУдачно" : "&cНеудачно";
+        messageTry = replace(messageTry, "%result%", result);
+        globalMessage = replace(globalMessage, "%result%", result);
 
-            if (randomValue < 50)
-                messageTry = replace(messageTry, "%result%", "&aУдачно", "%player%", player.getName(), "%action%", action);
-            else
-                messageTry = replace(messageTry, "%result%", "&cНеудачно", "%player%", player.getName(), "%action%", action);
+        sendUtils.send(sender, command, args, messageTry, globalMessage, true, "try", "try", 15);
 
-            String commandName = command.getName();
-
-            if (commandName.equalsIgnoreCase("try")) {
-                if (config.getBoolean("commands.try.range.enable", true)) {
-                    int range = config.getInt("commands.try.range.range", 15);
-
-                    if (!player.equals(players) && player.getLocation().distance(players.getLocation()) < range) {
-                        players.sendMessage(messageTry); player.sendMessage(messageTry);
-                        return true;
-                    }
-                }
-                else {
-                    players.sendMessage(messageTry); player.sendMessage(messageTry);
-                    return true;
-                }
-            }
-            else if (commandName.equalsIgnoreCase("gtry")) {
-                if (config.getBoolean("global-commands.try.enable", true)) {
-                    String globalCmd = config.getString("global-commands.try.message", "&d%player% %action% &7| %result%");
-
-                    if (randomValue < 50)
-                        globalCmd = replace(globalCmd, "%result%", "&aУдачно", "%player%", player.getName(), "%action%", action);
-                    else
-                        globalCmd = replace(globalCmd, "%result%", "&cНеудачно", "%player%", player.getName(), "%action%", action);
-
-                    players.sendMessage(globalCmd); player.sendMessage(globalCmd);
-                }
-                return true;
-            }
-        }
-        player.sendMessage(messageTry);
-        return errorUtils.showError(sender, "not-heard", "&eНикто не услышал тебя.");
+        return true;
     }
 }

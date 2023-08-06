@@ -53,6 +53,7 @@ commands:
     permission: rt.n
     aliases:
       - b
+
   gn:
     usage: /gn <message>
     permission: rt.gn

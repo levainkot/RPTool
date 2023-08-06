@@ -7,6 +7,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import me.chelop.rptool.utils.*;
 
+import static me.chelop.rptool.utils.ReplaceUtils.replace;
+
 public class WhisperCmd implements CommandExecutor {
 
     private final FileConfiguration config;
@@ -19,14 +21,11 @@ public class WhisperCmd implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         ErrorUtils errorUtils = new ErrorUtils(config);
 
-        if (!config.getBoolean("commands.whisper.enable", true))
-            return true;
-
         if (!(sender instanceof Player))
-            return errorUtils.showError(sender, "player-only", "&cОшибка: Эта команда доступна только игроку");
+            return errorUtils.showError(sender, "player-only", "&cОшибка: Можно использовать только игроку.");
 
         if (args.length < 2)
-            return errorUtils.showError(sender, "not-enough-arguments", "&cОшибка: Недостаточно аргументов");
+            return errorUtils.showError(sender, "not-enough-arguments", "&cОшибка: Недостаточно аргументов.");
 
         Player player = (Player) sender;
         Player recipient = player.getServer().getPlayer(args[0]);
@@ -42,7 +41,7 @@ public class WhisperCmd implements CommandExecutor {
 
             double maxDistance = Double.parseDouble(distance);
 
-            if (player.getLocation().distance(recipient.getLocation()) > maxDistance)
+            if (player.getLocation().distanceSquared(recipient.getLocation()) > maxDistance)
                 return errorUtils.showError(sender, "commands.whisper.distance-exceeded", "&cСлишком большое расстояние между вами и получателем.");
         }
 
@@ -54,8 +53,8 @@ public class WhisperCmd implements CommandExecutor {
             message.append(args[i]).append(" ");
         }
 
-        youWhispered = ReplaceUtils.replace(youWhispered, "%player%", recipient.getName(), "%message%", message);
-        whisperedYou = ReplaceUtils.replace(whisperedYou, "%player%", player.getName(), "%message%", message);
+        youWhispered = replace(youWhispered, "%player%", recipient.getName(), "%message%", message);
+        whisperedYou = replace(whisperedYou, "%player%", player.getName(), "%message%", message);
 
         player.sendMessage(youWhispered);
         recipient.sendMessage(whisperedYou);

@@ -12,8 +12,9 @@ public class ReplaceUtils {
             Object newValue = replacements[i + 1];
 
             result = result.replace(oldValue.toString(), newValue.toString());
-            result = ChatColor.translateAlternateColorCodes('&', result);
         }
+
+        result = ChatColor.translateAlternateColorCodes('&', result);
 
         return result;
     }

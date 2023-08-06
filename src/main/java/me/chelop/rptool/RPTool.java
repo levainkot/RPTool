@@ -2,15 +2,36 @@ package me.chelop.rptool;
 
 import me.chelop.rptool.cmds.*;
 import me.chelop.rptool.listeners.SmileListener;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
+import me.chelop.rptool.Metrics.Metrics;
 
 import java.io.File;
+import java.util.concurrent.Callable;
 
 public final class RPTool extends JavaPlugin {
     @Override
     public void onEnable() {
+
+        int pluginId = 19288; // <-- Replace with the id of your plugin!
+        Metrics metrics = new Metrics(this, pluginId);
+        Callable<String> playerCount = () -> String.valueOf(Bukkit.getOnlinePlayers().size());
+
+        // Optional: Add custom charts
+        metrics.addCustomChart(new Metrics.SimplePie("java_version", () -> System.getProperty("java.version")));
+        metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", Bukkit::getVersion));
+        metrics.addCustomChart(new Metrics.SingleLineChart("plugin_version", () -> {
+            //
+            return (int) 1.5;
+        }));
+        metrics.addCustomChart(new Metrics.SingleLineChart("servers", () -> {
+            //
+            return 1;
+        }));
+        metrics.addCustomChart(new Metrics.SimplePie("players", playerCount));
+
         // Loading & saving the configuration
         File configFile = new File(getDataFolder(), "config.yml");
         ConfigManager configManager = new ConfigManager(configFile, getConfig(), this);

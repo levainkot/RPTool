@@ -21,35 +21,24 @@ public class Completer implements TabCompleter {
 
         String commandName = command.getName().toLowerCase();
 
-        if (actionCommands.contains(commandName)) {
-            if (args.length == 1) {
-                completions.add("действие");
-            }
-        } else if (messageCommands.contains(commandName)) {
-            if (args.length == 1) {
-                completions.add("сообщение");
-            }
-        } else if (todoCommands.contains(commandName)) {
-            if (args.length == 1) {
-                completions.add("сообщение*действие");
-            }
-        } else if (command.getName().equalsIgnoreCase("rt")) {
-            if (args.length == 1) {
-                completions.add("reload");
-            }
-        } else {
-            if (args.length == 1) {
-                List<String> playerNames = new ArrayList<>();
-                Player player = (Player) sender;
+        if (actionCommands.contains(commandName) && args.length == 1) {
+            completions.add("действие");
+        } else if (messageCommands.contains(commandName) && args.length == 1) {
+            completions.add("сообщение");
+        } else if (todoCommands.contains(commandName) && args.length == 1) {
+            completions.add("сообщение*действие");
+        } else if (command.getName().equalsIgnoreCase("rt") && args.length == 1) {
+            completions.add("reload");
+        } else if (args.length == 1) {
+            List<String> playerNames = new ArrayList<>();
+            Player player = (Player) sender;
 
-                for (Player players : player.getWorld().getPlayers()) {
-                    playerNames.add(players.getName());
-                }
-                return playerNames;
+            for (Player players : player.getWorld().getPlayers()) {
+                playerNames.add(players.getName());
             }
-            if (args.length == 2) {
-                completions.add("сообщение");
-            }
+            return playerNames;
+        } else if (args.length == 2) {
+            completions.add("сообщение");
         }
 
         return completions;
